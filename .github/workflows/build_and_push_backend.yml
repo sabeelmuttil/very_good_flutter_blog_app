@@ -6,15 +6,17 @@ on:
       - dev
     paths:
       - backend/**
+      - .github/workflows/build_and_push_backend.yml
   pull_request:
     branches:
       - dev
     paths:
       - backend/**
+      - .github/workflows/build_and_push_backend.yml
 
 defaults:
   run:
-    working-directory: /backend
+    working-directory: ./backend
 
 jobs:
   deploy:
