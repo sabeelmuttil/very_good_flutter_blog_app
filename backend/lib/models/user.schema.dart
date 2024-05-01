@@ -2,7 +2,7 @@
 
 part of 'user.dart';
 
-extension UserRepositories on Database {
+extension UserRepositories on Session {
   UserRepository get users => UserRepository._(this);
 }
 
@@ -12,7 +12,7 @@ abstract class UserRepository
         ModelRepositoryInsert<UserInsertRequest>,
         ModelRepositoryUpdate<UserUpdateRequest>,
         ModelRepositoryDelete<String> {
-  factory UserRepository._(Database db) = _UserRepository;
+  factory UserRepository._(Session db) = _UserRepository;
 
   Future<UserView?> queryUser(String id);
   Future<List<UserView>> queryUsers([QueryParams? params]);
@@ -40,10 +40,11 @@ class _UserRepository extends BaseRepository
   Future<void> insert(List<UserInsertRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'INSERT INTO "users" ( "id", "full_name", "email", "password", "avatar_url", "following", "follower" )\n'
-      'VALUES ${requests.map((r) => '( ${values.add(r.id)}:text, ${values.add(r.fullName)}:text, ${values.add(r.email)}:text, ${values.add(r.password)}:text, ${values.add(r.avatarUrl)}:text, ${values.add(r.following)}:int8, ${values.add(r.follower)}:int8 )').join(', ')}\n',
-      values.values,
+    await db.execute(
+      Sql.named(
+          'INSERT INTO "users" ( "id", "full_name", "email", "password", "avatar_url", "following", "follower" )\n'
+          'VALUES ${requests.map((r) => '( ${values.add(r.id)}:text, ${values.add(r.fullName)}:text, ${values.add(r.email)}:text, ${values.add(r.password)}:text, ${values.add(r.avatarUrl)}:text, ${values.add(r.following)}:int8, ${values.add(r.follower)}:int8 )').join(', ')}\n'),
+      parameters: values.values,
     );
   }
 
@@ -51,13 +52,13 @@ class _UserRepository extends BaseRepository
   Future<void> update(List<UserUpdateRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'UPDATE "users"\n'
-      'SET "full_name" = COALESCE(UPDATED."full_name", "users"."full_name"), "email" = COALESCE(UPDATED."email", "users"."email"), "password" = COALESCE(UPDATED."password", "users"."password"), "avatar_url" = COALESCE(UPDATED."avatar_url", "users"."avatar_url"), "following" = COALESCE(UPDATED."following", "users"."following"), "follower" = COALESCE(UPDATED."follower", "users"."follower")\n'
-      'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.id)}:text::text, ${values.add(r.fullName)}:text::text, ${values.add(r.email)}:text::text, ${values.add(r.password)}:text::text, ${values.add(r.avatarUrl)}:text::text, ${values.add(r.following)}:int8::int8, ${values.add(r.follower)}:int8::int8 )').join(', ')} )\n'
-      'AS UPDATED("id", "full_name", "email", "password", "avatar_url", "following", "follower")\n'
-      'WHERE "users"."id" = UPDATED."id"',
-      values.values,
+    await db.execute(
+      Sql.named('UPDATE "users"\n'
+          'SET "full_name" = COALESCE(UPDATED."full_name", "users"."full_name"), "email" = COALESCE(UPDATED."email", "users"."email"), "password" = COALESCE(UPDATED."password", "users"."password"), "avatar_url" = COALESCE(UPDATED."avatar_url", "users"."avatar_url"), "following" = COALESCE(UPDATED."following", "users"."following"), "follower" = COALESCE(UPDATED."follower", "users"."follower")\n'
+          'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.id)}:text::text, ${values.add(r.fullName)}:text::text, ${values.add(r.email)}:text::text, ${values.add(r.password)}:text::text, ${values.add(r.avatarUrl)}:text::text, ${values.add(r.following)}:int8::int8, ${values.add(r.follower)}:int8::int8 )').join(', ')} )\n'
+          'AS UPDATED("id", "full_name", "email", "password", "avatar_url", "following", "follower")\n'
+          'WHERE "users"."id" = UPDATED."id"'),
+      parameters: values.values,
     );
   }
 }

@@ -13,17 +13,18 @@ part 'base_response_data.g.dart';
 class BaseResponseData {
   const BaseResponseData({
     required this.success,
-    this.data,
+    this.result,
+    this.errorCode,
     this.message = kSuccessResponseMessage,
   });
 
   factory BaseResponseData.fromJson(Map<String, dynamic> json) =>
       _$BaseResponseDataFromJson(json);
 
-  factory BaseResponseData.data(dynamic data) {
+  factory BaseResponseData.data(dynamic result) {
     return BaseResponseData(
       success: true,
-      data: data,
+      result: result,
     );
   }
 
@@ -34,28 +35,32 @@ class BaseResponseData {
     );
   }
 
-  factory BaseResponseData.failed([String? message]) {
+  factory BaseResponseData.failed({String? errorCode, String? message}) {
     return BaseResponseData(
       success: false,
+      errorCode: errorCode,
       message: message ?? kFailedResponseMessage,
     );
   }
 
   final bool success;
+  final String? errorCode;
   final String message;
-  final dynamic data;
+  final dynamic result;
 
   Map<String, dynamic> toJson() => _$BaseResponseDataToJson(this);
 
   BaseResponseData copyWith({
     bool? success,
+    String? errorCode,
     String? message,
-    dynamic data,
+    dynamic result,
   }) {
     return BaseResponseData(
       success: success ?? this.success,
+      errorCode: errorCode ?? this.errorCode,
       message: message ?? this.message,
-      data: data ?? this.data,
+      result: result ?? this.result,
     );
   }
 }
@@ -79,50 +84,56 @@ class CreatedResponse extends Response {
 }
 
 class NotFoundResponse extends Response {
-  NotFoundResponse([String? message])
+  NotFoundResponse([String? errorCode, String? message])
       : super.json(
           statusCode: HttpStatus.notFound,
-          body: BaseResponseData.failed(message).toJson(),
+          body: BaseResponseData.failed(errorCode: errorCode, message: message)
+              .toJson(),
         );
 }
 
 class ConflictResponse extends Response {
-  ConflictResponse([String? message])
+  ConflictResponse([String? errorCode, String? message])
       : super.json(
           statusCode: HttpStatus.conflict,
-          body: BaseResponseData.failed(message).toJson(),
+          body: BaseResponseData.failed(errorCode: errorCode, message: message)
+              .toJson(),
         );
 }
 
 class UnauthorizedResponse extends Response {
-  UnauthorizedResponse([String? message])
+  UnauthorizedResponse([String? errorCode, String? message])
       : super.json(
           statusCode: HttpStatus.unauthorized,
-          body: BaseResponseData.failed(message).toJson(),
+          body: BaseResponseData.failed(errorCode: errorCode, message: message)
+              .toJson(),
         );
 }
 
 class BadRequestResponse extends Response {
-  BadRequestResponse([String? message])
+  BadRequestResponse([String? errorCode, String? message])
       : super.json(
           statusCode: HttpStatus.badRequest,
-          body: BaseResponseData.failed(message).toJson(),
+          body: BaseResponseData.failed(errorCode: errorCode, message: message)
+              .toJson(),
         );
 }
 
 class ForbiddenResponse extends Response {
-  ForbiddenResponse([String? message])
+  ForbiddenResponse([String? errorCode, String? message])
       : super.json(
           statusCode: HttpStatus.forbidden,
-          body: BaseResponseData.failed(message).toJson(),
+          body: BaseResponseData.failed(errorCode: errorCode, message: message)
+              .toJson(),
         );
 }
 
-class ServerErrorResponse extends Response {
-  ServerErrorResponse([String? message])
+class InternalServerErrorResponse extends Response {
+  InternalServerErrorResponse([String? errorCode, String? message])
       : super.json(
           statusCode: HttpStatus.internalServerError,
-          body: BaseResponseData.failed(message).toJson(),
+          body: BaseResponseData.failed(errorCode: errorCode, message: message)
+              .toJson(),
         );
 }
 

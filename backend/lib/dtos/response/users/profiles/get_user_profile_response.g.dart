@@ -16,8 +16,8 @@ GetUserProfileResponse _$GetUserProfileResponseFromJson(
           id: $checkedConvert('id', (v) => v as String),
           fullName: $checkedConvert('full_name', (v) => v as String),
           email: $checkedConvert('email', (v) => v as String),
-          following: $checkedConvert('following', (v) => v as int),
-          follower: $checkedConvert('follower', (v) => v as int),
+          following: $checkedConvert('following', (v) => (v as num).toInt()),
+          follower: $checkedConvert('follower', (v) => (v as num).toInt()),
           avatarUrl: $checkedConvert('avatar_url', (v) => v as String?),
         );
         return val;

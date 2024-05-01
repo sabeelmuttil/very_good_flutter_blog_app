@@ -2,7 +2,7 @@
 
 part of 'favorite_blogs_users.dart';
 
-extension FavoriteBlogsUsersRepositories on Database {
+extension FavoriteBlogsUsersRepositories on Session {
   FavoriteBlogsUsersRepository get favoriteBlogsUserses => FavoriteBlogsUsersRepository._(this);
 }
 
@@ -11,7 +11,7 @@ abstract class FavoriteBlogsUsersRepository
         ModelRepository,
         ModelRepositoryInsert<FavoriteBlogsUsersInsertRequest>,
         ModelRepositoryUpdate<FavoriteBlogsUsersUpdateRequest> {
-  factory FavoriteBlogsUsersRepository._(Database db) = _FavoriteBlogsUsersRepository;
+  factory FavoriteBlogsUsersRepository._(Session db) = _FavoriteBlogsUsersRepository;
 
   Future<List<FavoriteBlogsUsersView>> queryFavoriteBlogsUserses([QueryParams? params]);
 }
@@ -32,10 +32,10 @@ class _FavoriteBlogsUsersRepository extends BaseRepository
   Future<void> insert(List<FavoriteBlogsUsersInsertRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'INSERT INTO "favorite_blogs_userses" ( "blog_id", "user_id" )\n'
-      'VALUES ${requests.map((r) => '( ${values.add(r.blogId)}:text, ${values.add(r.userId)}:text )').join(', ')}\n',
-      values.values,
+    await db.execute(
+      Sql.named('INSERT INTO "favorite_blogs_userses" ( "blog_id", "user_id" )\n'
+          'VALUES ${requests.map((r) => '( ${values.add(r.blogId)}:text, ${values.add(r.userId)}:text )').join(', ')}\n'),
+      parameters: values.values,
     );
   }
 
@@ -43,13 +43,13 @@ class _FavoriteBlogsUsersRepository extends BaseRepository
   Future<void> update(List<FavoriteBlogsUsersUpdateRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'UPDATE "favorite_blogs_userses"\n'
-      'SET \n'
-      'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.blogId)}:text::text, ${values.add(r.userId)}:text::text )').join(', ')} )\n'
-      'AS UPDATED("blog_id", "user_id")\n'
-      'WHERE "favorite_blogs_userses"."blog_id" = UPDATED."blog_id" AND "favorite_blogs_userses"."user_id" = UPDATED."user_id"',
-      values.values,
+    await db.execute(
+      Sql.named('UPDATE "favorite_blogs_userses"\n'
+          'SET \n'
+          'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.blogId)}:text::text, ${values.add(r.userId)}:text::text )').join(', ')} )\n'
+          'AS UPDATED("blog_id", "user_id")\n'
+          'WHERE "favorite_blogs_userses"."blog_id" = UPDATED."blog_id" AND "favorite_blogs_userses"."user_id" = UPDATED."user_id"'),
+      parameters: values.values,
     );
   }
 }

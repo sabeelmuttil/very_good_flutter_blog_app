@@ -29,7 +29,7 @@ Future<Response> _onFavoritesGetRequest(RequestContext context) {
       )
       .then((r) => r.map(GetUserFavoriteBlogResponse.fromView).toList())
       .then<Response>((res) => OkResponse(res.map((e) => e.toJson()).toList()))
-      .onError((e, _) => ServerErrorResponse(e.toString()));
+      .onError((e, _) => InternalServerErrorResponse(e.toString()));
 }
 
 Future<Response> _onFavoritesPostRequest(RequestContext context) async {
@@ -72,16 +72,16 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
             ),
           )
           .then<Response>((_) => OkResponse())
-          .onError((e, _) => ServerErrorResponse(e.toString()));
+          .onError((e, _) => InternalServerErrorResponse(e.toString()));
     }
     return db
-        .query(
+        .execute(
           'DELETE FROM favorite_blogs_userses '
           'WHERE blog_id=@blogId AND user_id=@userId',
-          {'blogId': request.blogId, 'userId': userView.id},
+          parameters: {'blogId': request.blogId, 'userId': userView.id},
         )
         .then<Response>((_) => OkResponse())
-        .onError((e, _) => ServerErrorResponse(e.toString()));
+        .onError((e, _) => InternalServerErrorResponse(e.toString()));
   } on CheckedFromJsonException catch (e) {
     return BadRequestResponse(e.message);
   }

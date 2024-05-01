@@ -2,7 +2,7 @@
 
 part of 'following_follower.dart';
 
-extension FollowingFollowerRepositories on Database {
+extension FollowingFollowerRepositories on Session {
   FollowingFollowerRepository get followingFollowers => FollowingFollowerRepository._(this);
 }
 
@@ -11,7 +11,7 @@ abstract class FollowingFollowerRepository
         ModelRepository,
         ModelRepositoryInsert<FollowingFollowerInsertRequest>,
         ModelRepositoryUpdate<FollowingFollowerUpdateRequest> {
-  factory FollowingFollowerRepository._(Database db) = _FollowingFollowerRepository;
+  factory FollowingFollowerRepository._(Session db) = _FollowingFollowerRepository;
 
   Future<List<FollowingFollowerView>> queryFollowingFollowers([QueryParams? params]);
 }
@@ -32,10 +32,10 @@ class _FollowingFollowerRepository extends BaseRepository
   Future<void> insert(List<FollowingFollowerInsertRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'INSERT INTO "following_followers" ( "following_id", "follower_id" )\n'
-      'VALUES ${requests.map((r) => '( ${values.add(r.followingId)}:text, ${values.add(r.followerId)}:text )').join(', ')}\n',
-      values.values,
+    await db.execute(
+      Sql.named('INSERT INTO "following_followers" ( "following_id", "follower_id" )\n'
+          'VALUES ${requests.map((r) => '( ${values.add(r.followingId)}:text, ${values.add(r.followerId)}:text )').join(', ')}\n'),
+      parameters: values.values,
     );
   }
 
@@ -43,13 +43,13 @@ class _FollowingFollowerRepository extends BaseRepository
   Future<void> update(List<FollowingFollowerUpdateRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'UPDATE "following_followers"\n'
-      'SET \n'
-      'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.followingId)}:text::text, ${values.add(r.followerId)}:text::text )').join(', ')} )\n'
-      'AS UPDATED("following_id", "follower_id")\n'
-      'WHERE "following_followers"."following_id" = UPDATED."following_id" AND "following_followers"."follower_id" = UPDATED."follower_id"',
-      values.values,
+    await db.execute(
+      Sql.named('UPDATE "following_followers"\n'
+          'SET "following_id" = COALESCE(UPDATED."following_id", "following_followers"."following_id"), "follower_id" = COALESCE(UPDATED."follower_id", "following_followers"."follower_id")\n'
+          'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.followingId)}:text::text, ${values.add(r.followerId)}:text::text )').join(', ')} )\n'
+          'AS UPDATED("following_id", "follower_id")\n'
+          'WHERE '),
+      parameters: values.values,
     );
   }
 }
@@ -76,29 +76,23 @@ class FollowingFollowerUpdateRequest {
 
 class FollowingFollowerViewQueryable extends ViewQueryable<FollowingFollowerView> {
   @override
-  String get query =>
-      'SELECT "following_followers".*, row_to_json("following".*) as "following", row_to_json("follower".*) as "follower"'
-      'FROM "following_followers"'
-      'LEFT JOIN (${UserViewQueryable().query}) "following"'
-      'ON "following_followers"."following_id" = "following"."id"'
-      'LEFT JOIN (${UserViewQueryable().query}) "follower"'
-      'ON "following_followers"."follower_id" = "follower"."id"';
+  String get query => 'SELECT "following_followers".*'
+      'FROM "following_followers"';
 
   @override
   String get tableAlias => 'following_followers';
 
   @override
   FollowingFollowerView decode(TypedMap map) => FollowingFollowerView(
-      following: map.get('following', UserViewQueryable().decoder),
-      follower: map.get('follower', UserViewQueryable().decoder));
+      followingId: map.get('following_id'), followerId: map.get('follower_id'));
 }
 
 class FollowingFollowerView {
   FollowingFollowerView({
-    required this.following,
-    required this.follower,
+    required this.followingId,
+    required this.followerId,
   });
 
-  final UserView following;
-  final UserView follower;
+  final String followingId;
+  final String followerId;
 }

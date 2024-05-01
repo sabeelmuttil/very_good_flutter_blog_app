@@ -10,6 +10,14 @@
 
 <!--- Describe your changes in detail -->
 
+## Changed Side
+
+<!--- Put an `x` in all the boxes that apply: -->
+
+- [ ] 💻 Backend
+- [ ] 📱 Mobile App
+- [ ] 🔧 Configuration
+
 ## Type of Change
 
 <!--- Put an `x` in all the boxes that apply: -->

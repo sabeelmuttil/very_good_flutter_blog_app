@@ -13,9 +13,11 @@ BasePaginationResponse _$BasePaginationResponseFromJson(
       json,
       ($checkedConvert) {
         final val = BasePaginationResponse(
-          currentPage: $checkedConvert('current_page', (v) => v as int? ?? 0),
-          limit: $checkedConvert('limit', (v) => v as int? ?? 0),
-          totalCount: $checkedConvert('total_count', (v) => v as int? ?? 0),
+          currentPage:
+              $checkedConvert('current_page', (v) => (v as num?)?.toInt() ?? 0),
+          limit: $checkedConvert('limit', (v) => (v as num?)?.toInt() ?? 0),
+          totalCount:
+              $checkedConvert('total_count', (v) => (v as num?)?.toInt() ?? 0),
         );
         return val;
       },

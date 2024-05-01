@@ -4,26 +4,26 @@ version: 1.0.0+1
 publish_to: none
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
   cloudinary: ^1.2.0
   crypto: ^3.0.3
-  dart_frog: ^1.0.0
+  dart_frog: ^1.1.0
   dart_frog_auth: ^1.1.0
-  dart_jsonwebtoken: ^2.11.0
+  dart_jsonwebtoken: ^2.14.0
   dartx: ^1.2.0
   equatable: ^2.0.5
-  http: ^1.1.0
-  json_annotation: ^4.8.1
+  http: ^1.2.1
+  json_annotation: ^4.9.0
   shelf_enforces_ssl: ^1.2.1
-  stormberry: ^0.13.1
-  string_validator: ^1.0.0
-  uuid: ^3.0.7
+  stormberry: ^0.14.0
+  string_validator: ^1.0.2
+  uuid: ^4.4.0
 
 dev_dependencies:
-  build_runner: ^2.4.6
-  json_serializable: ^6.7.1
-  mocktail: ^0.3.0
-  test: ^1.19.2
-  very_good_analysis: ^5.0.0
+  build_runner: ^2.4.9
+  json_serializable: ^6.8.0
+  mocktail: ^1.0.3
+  test: ^1.25.4
+  very_good_analysis: ^5.1.0

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:very_good_blog_app_backend/models/following_follower.dart';
+import 'package:very_good_blog_app_backend/models/user.dart';
 
 part 'get_user_profile_response.g.dart';
 
@@ -15,12 +16,12 @@ class GetUserFollowerResponse {
   factory GetUserFollowerResponse.fromJson(Map<String, dynamic> json) =>
       _$GetUserFollowerResponseFromJson(json);
 
-  factory GetUserFollowerResponse.fromView(FollowingFollowerView view) {
+  factory GetUserFollowerResponse.fromView(UserView follower) {
     return GetUserFollowerResponse(
-      id: view.follower.id,
-      fullName: view.follower.fullName,
-      email: view.follower.email,
-      avatarUrl: view.follower.avatarUrl,
+      id: follower.id,
+      fullName: follower.fullName,
+      email: follower.email,
+      avatarUrl: follower.avatarUrl,
     );
   }
 

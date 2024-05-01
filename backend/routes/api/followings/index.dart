@@ -42,13 +42,13 @@ Future<Response> _onFollowingPost(RequestContext context) async {
         .firstOrNull;
     if (existFollowing != null) {
       return db
-          .query(
+          .execute(
             'DELETE FROM following_followers '
             'WHERE following_id=@followingId AND follower_id=@followerId',
-            {'followingId': userView.id, 'userId': userView.id},
+            parameters: {'followingId': userView.id, 'userId': userView.id},
           )
           .then<Response>((_) => OkResponse())
-          .onError((e, _) => ServerErrorResponse(e.toString()));
+          .onError((e, _) => InternalServerErrorResponse(e.toString()));
     }
     return db.followingFollowers
         .insertOne(
@@ -58,10 +58,10 @@ Future<Response> _onFollowingPost(RequestContext context) async {
           ),
         )
         .then<Response>((_) => OkResponse())
-        .onError((e, _) => ServerErrorResponse(e.toString()));
+        .onError((e, _) => InternalServerErrorResponse(e.toString()));
   } on CheckedFromJsonException catch (e) {
     return BadRequestResponse(e.message);
   } catch (e) {
-    return ServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(e.toString());
   }
 }

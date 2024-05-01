@@ -2,7 +2,7 @@
 
 part of 'blog.dart';
 
-extension BlogRepositories on Database {
+extension BlogRepositories on Session {
   BlogRepository get blogs => BlogRepository._(this);
 }
 
@@ -12,7 +12,7 @@ abstract class BlogRepository
         ModelRepositoryInsert<BlogInsertRequest>,
         ModelRepositoryUpdate<BlogUpdateRequest>,
         ModelRepositoryDelete<String> {
-  factory BlogRepository._(Database db) = _BlogRepository;
+  factory BlogRepository._(Session db) = _BlogRepository;
 
   Future<BlogView?> queryBlog(String id);
   Future<List<BlogView>> queryBlogs([QueryParams? params]);
@@ -40,17 +40,18 @@ class _BlogRepository extends BaseRepository
   Future<void> insert(List<BlogInsertRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'INSERT INTO "blogs" ( "id", "title", "content", "image_url", "category", "created_at", "updated_at", "creator_id", "is_deleted" )\n'
-      'VALUES ${requests.map((r) => '( ${values.add(r.id)}:text, ${values.add(r.title)}:text, ${values.add(r.content)}:text, ${values.add(r.imageUrl)}:text, ${values.add(EnumTypeConverter<BlogCategory>([
-                BlogCategory.business,
-                BlogCategory.technology,
-                BlogCategory.fashion,
-                BlogCategory.travel,
-                BlogCategory.food,
-                BlogCategory.education
-              ]).tryEncode(r.category))}:text, ${values.add(r.createdAt)}:timestamp, ${values.add(r.updatedAt)}:timestamp, ${values.add(r.creatorId)}:text, ${values.add(r.isDeleted)}:boolean )').join(', ')}\n',
-      values.values,
+    await db.execute(
+      Sql.named(
+          'INSERT INTO "blogs" ( "id", "title", "content", "image_url", "category", "created_at", "updated_at", "creator_id", "is_deleted" )\n'
+          'VALUES ${requests.map((r) => '( ${values.add(r.id)}:text, ${values.add(r.title)}:text, ${values.add(r.content)}:text, ${values.add(r.imageUrl)}:text, ${values.add(EnumTypeConverter<BlogCategory>([
+                    BlogCategory.business,
+                    BlogCategory.technology,
+                    BlogCategory.fashion,
+                    BlogCategory.travel,
+                    BlogCategory.food,
+                    BlogCategory.education
+                  ]).tryEncode(r.category))}:text, ${values.add(r.createdAt)}:timestamp, ${values.add(r.updatedAt)}:timestamp, ${values.add(r.creatorId)}:text, ${values.add(r.isDeleted)}:boolean )').join(', ')}\n'),
+      parameters: values.values,
     );
   }
 
@@ -58,20 +59,20 @@ class _BlogRepository extends BaseRepository
   Future<void> update(List<BlogUpdateRequest> requests) async {
     if (requests.isEmpty) return;
     var values = QueryValues();
-    await db.query(
-      'UPDATE "blogs"\n'
-      'SET "title" = COALESCE(UPDATED."title", "blogs"."title"), "content" = COALESCE(UPDATED."content", "blogs"."content"), "image_url" = COALESCE(UPDATED."image_url", "blogs"."image_url"), "category" = COALESCE(UPDATED."category", "blogs"."category"), "created_at" = COALESCE(UPDATED."created_at", "blogs"."created_at"), "updated_at" = COALESCE(UPDATED."updated_at", "blogs"."updated_at"), "creator_id" = COALESCE(UPDATED."creator_id", "blogs"."creator_id"), "is_deleted" = COALESCE(UPDATED."is_deleted", "blogs"."is_deleted")\n'
-      'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.id)}:text::text, ${values.add(r.title)}:text::text, ${values.add(r.content)}:text::text, ${values.add(r.imageUrl)}:text::text, ${values.add(EnumTypeConverter<BlogCategory>([
-                BlogCategory.business,
-                BlogCategory.technology,
-                BlogCategory.fashion,
-                BlogCategory.travel,
-                BlogCategory.food,
-                BlogCategory.education
-              ]).tryEncode(r.category))}:text::text, ${values.add(r.createdAt)}:timestamp::timestamp, ${values.add(r.updatedAt)}:timestamp::timestamp, ${values.add(r.creatorId)}:text::text, ${values.add(r.isDeleted)}:boolean::boolean )').join(', ')} )\n'
-      'AS UPDATED("id", "title", "content", "image_url", "category", "created_at", "updated_at", "creator_id", "is_deleted")\n'
-      'WHERE "blogs"."id" = UPDATED."id"',
-      values.values,
+    await db.execute(
+      Sql.named('UPDATE "blogs"\n'
+          'SET "title" = COALESCE(UPDATED."title", "blogs"."title"), "content" = COALESCE(UPDATED."content", "blogs"."content"), "image_url" = COALESCE(UPDATED."image_url", "blogs"."image_url"), "category" = COALESCE(UPDATED."category", "blogs"."category"), "created_at" = COALESCE(UPDATED."created_at", "blogs"."created_at"), "updated_at" = COALESCE(UPDATED."updated_at", "blogs"."updated_at"), "creator_id" = COALESCE(UPDATED."creator_id", "blogs"."creator_id"), "is_deleted" = COALESCE(UPDATED."is_deleted", "blogs"."is_deleted")\n'
+          'FROM ( VALUES ${requests.map((r) => '( ${values.add(r.id)}:text::text, ${values.add(r.title)}:text::text, ${values.add(r.content)}:text::text, ${values.add(r.imageUrl)}:text::text, ${values.add(EnumTypeConverter<BlogCategory>([
+                    BlogCategory.business,
+                    BlogCategory.technology,
+                    BlogCategory.fashion,
+                    BlogCategory.travel,
+                    BlogCategory.food,
+                    BlogCategory.education
+                  ]).tryEncode(r.category))}:text::text, ${values.add(r.createdAt)}:timestamp::timestamp, ${values.add(r.updatedAt)}:timestamp::timestamp, ${values.add(r.creatorId)}:text::text, ${values.add(r.isDeleted)}:boolean::boolean )').join(', ')} )\n'
+          'AS UPDATED("id", "title", "content", "image_url", "category", "created_at", "updated_at", "creator_id", "is_deleted")\n'
+          'WHERE "blogs"."id" = UPDATED."id"'),
+      parameters: values.values,
     );
   }
 }

@@ -1,19 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "A sample API",
-    "description": "A sample API",
-    "termsOfService": "https://very-good-blog-app.up.railway.app",
+    "title": "Very Good Blog App Dart API Document",
     "contact": {
-      "name": "none",
-      "url": "http://localhost",
-      "email": "none@api.com"
+      "name": "dungngminh",
+      "email": "ngminhdung1311@gmail.com"
     },
-    "license": {
-      "name": "",
-      "url": ""
-    },
-    "version": "0.0.0"
+    "version": "1.0.0"
   },
   "externalDocs": {
     "description": "",
@@ -159,6 +152,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "security": []
@@ -198,6 +201,16 @@
           },
           {
             "name": "page",
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
             "in": "query",
             "required": false,
             "deprecated": false,
