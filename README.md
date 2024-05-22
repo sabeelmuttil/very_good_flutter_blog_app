@@ -4,7 +4,7 @@
 
 ![VeryGoodBlogApp Landing](.github/screenshots/landing.png)
 
-This project is tested with BrowserStack.
+This project is tested with BrowserStack
 
 ## Features
 
